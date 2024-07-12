@@ -6,6 +6,8 @@
     "setup": "node setup.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.0.0"
+    "@supabase/supabase-js": "^2.44.3",
+    "typescript": "^5.5.3",
+    "@types/node": "^20.14.10"
   }
 }
