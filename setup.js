@@ -4,49 +4,54 @@ const path = require('path');
 
 // Function to execute shell commands
 const exec = (command) => {
+  console.log(`Running: ${command}`);
   execSync(command, { stdio: 'inherit' });
 };
 
 // Create Next.js app with TypeScript
-console.log('Creating Next.js app with TypeScript...');
 exec('npx create-next-app@latest my-next-app --typescript');
 
 // Navigate into the app directory
 process.chdir('my-next-app');
 
 // Install Supabase client
-console.log('Installing Supabase client...');
 exec('npm install @supabase/supabase-js');
 
-// Create Supabase helper file
-console.log('Setting up Supabase helper...');
-const supabaseDir = path.join('lib');
-if (!fs.existsSync(supabaseDir)) {
-  fs.mkdirSync(supabaseDir);
+// Ensure 'pages' directory exists
+const pagesDir = path.join(process.cwd(), 'pages');
+if (!fs.existsSync(pagesDir)) {
+  fs.mkdirSync(pagesDir);
 }
-fs.writeFileSync(path.join(supabaseDir, 'supabase.ts'), `
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-export const supabase = createClient(supabaseUrl, supabaseKey);
-`);
-
-// Add example usage in pages/index.tsx
-console.log('Creating example page...');
-fs.writeFileSync('pages/index.tsx', `
+// Example usage in pages/index.tsx
+fs.writeFileSync(path.join(pagesDir, 'index.tsx'), `
 import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
 
 interface Post {
   id: number;
   title: string;
 }
 
-interface Props {
-  posts: Post[];
-}
+export default function Home() {
+  const [posts, setPosts] = useState<Post[]>([]);
 
-export default function Home({ posts }: Props) {
+  useEffect(() => {
+    async function fetchPosts() {
+      let { data: posts, error } = await supabase
+        .from<Post>('posts')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching posts:', error);
+      } else {
+        setPosts(posts || []);
+      }
+    }
+
+    fetchPosts();
+  }, []);
+
   return (
     <div>
       <h1>Posts</h1>
@@ -58,27 +63,12 @@ export default function Home({ posts }: Props) {
     </div>
   );
 }
-
-export async function getStaticProps() {
-  let { data: posts, error } = await supabase
-    .from('posts')
-    .select('*');
-
-  if (error) console.log('Error fetching posts:', error);
-
-  return {
-    props: {
-      posts,
-    },
-  };
-}
 `);
 
 // Create .env.local file
-console.log('Creating .env.local file...');
 fs.writeFileSync('.env.local', `
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_KEY=your-supabase-key
 `);
 
-console.log('Setup complete. Please update your .env.local file with your Supabase URL and Key.');
+console.log('Setup complete.');
