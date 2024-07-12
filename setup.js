@@ -7,9 +7,9 @@ const exec = (command) => {
   execSync(command, { stdio: 'inherit' });
 };
 
-// Create Next.js app
-console.log('Creating Next.js app...');
-exec('npx create-next-app@latest my-next-app');
+// Create Next.js app with TypeScript
+console.log('Creating Next.js app with TypeScript...');
+exec('npx create-next-app@latest my-next-app --typescript');
 
 // Navigate into the app directory
 process.chdir('my-next-app');
@@ -24,7 +24,7 @@ const supabaseDir = path.join('lib');
 if (!fs.existsSync(supabaseDir)) {
   fs.mkdirSync(supabaseDir);
 }
-fs.writeFileSync(path.join(supabaseDir, 'supabase.js'), `
+fs.writeFileSync(path.join(supabaseDir, 'supabase.ts'), `
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -32,12 +32,21 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 `);
 
-// Add example usage in pages/index.js
+// Add example usage in pages/index.tsx
 console.log('Creating example page...');
-fs.writeFileSync('pages/index.js', `
+fs.writeFileSync('pages/index.tsx', `
 import { supabase } from '../lib/supabase';
 
-export default function Home({ posts }) {
+interface Post {
+  id: number;
+  title: string;
+}
+
+interface Props {
+  posts: Post[];
+}
+
+export default function Home({ posts }: Props) {
   return (
     <div>
       <h1>Posts</h1>
