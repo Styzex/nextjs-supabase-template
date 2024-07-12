@@ -1,6 +1,7 @@
 {
   "name": "nextjs-supabase-template",
   "version": "1.0.0",
+  "main": "setup.js",
   "scripts": {
     "setup": "node setup.js"
   },
