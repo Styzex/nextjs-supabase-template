@@ -1,4 +1,5 @@
 # This is my web dev project template script
+I dont recommend using this since its not maintained like all of my other projects.
 
 Run this using node.js
 
